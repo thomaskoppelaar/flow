@@ -42,14 +42,20 @@ How do you print something?
 
 
 
+Should a single cell type, `{}` be used rather than using `()`?
+- Pro: Makes parsing a whole lot easier, no need to worry about double meaning of ()
+- Con: Makes parsing a bit harder as `{}` now can mean I/O or a function
+
+
+
 Example program:
 ```cpp
-(2) => (a | * (+ 1 a) 2) => {}
+{2} => {a | * (+ 1 a) 2} => {}
 ```
 
-`(2)` is the starting cell, returns/outputs 2
-`(a |` means the cell takes in 1 input
-`* (+ 1 a) 2` returns `(1+a)*2`, which in this case means 6
+`{2}` is the starting cell, returns/outputs 2
+`{a |` means the cell takes in 1 input
+`* (+ 1 a) 2}` returns `(1+a)*2`, which in this case means 6
 `=> {}` prints the result to the console.
 
 
