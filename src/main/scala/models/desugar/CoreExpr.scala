@@ -6,3 +6,5 @@ case class NilC() extends CoreExpr
 case class MarkerC(e : CoreExpr) extends CoreExpr
 case class PlusC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class MinC(l: CoreExpr, r: CoreExpr) extends CoreExpr
+case class MultC(l: CoreExpr, r: CoreExpr) extends CoreExpr
+case class DivC(l: CoreExpr, r: CoreExpr) extends CoreExpr

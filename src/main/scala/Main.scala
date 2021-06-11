@@ -8,21 +8,20 @@ object Main extends App {
 
 
     // String that contains the program
-    val program: String = "{- 3 2}"
+    val program: String = "{+ 1 (+ 1 1)} => { * 2 (/ 6 3)} => {} => {}"
+    println("Input Program: " + program)
 
     // Read input code, transform into string expressions
     val read_program: StringExpr = Reader.read(program)
+    println("String Exp: " + read_program.toString())
 
     val parsed_program: ExtExpr = Parser.parse(read_program)
+    println("Parsed: " + parsed_program.toString())
 
     val desugared_program: CoreExpr = Desugarer.desugar(parsed_program)
+    println("Desugared: " + desugared_program.toString())
 
     val interped_program: Value = Interpreter.interp(desugared_program)
-
-    println("Input Program: " + program)
-    println("String Exp: " + read_program.toString())
-    println("Parsed: " + parsed_program.toString())
-    println("Desugared: " + desugared_program.toString())
     println("Interpreted: " + interped_program.toString())
 
 }

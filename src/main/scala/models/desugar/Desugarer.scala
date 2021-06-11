@@ -15,6 +15,8 @@ package object Desugarer {
         case BinOpExt(c, l, r) => c match {
             case "+" => PlusC(desugar(l), desugar(r))
             case "-" => MinC(desugar(l), desugar(r))
+            case "*" => MultC(desugar(l), desugar(r))
+            case "/" => DivC(desugar(l), desugar(r))
             case _ => throw new DesugarException("Unknown symbol for binary operator:" + c)
         }
         case NilExt() => NilC()

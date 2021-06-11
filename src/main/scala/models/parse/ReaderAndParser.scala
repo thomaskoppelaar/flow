@@ -13,8 +13,11 @@ package ReaderAndParser {
 
         def parse(i : StringExpr, n  : ExtExpr = NilExt()): ExtExpr = i match {
 
-            // Number
-            case SNum(x) => NumExt(x)
+            // List of String expressions - iterated from right to left.
+            // `b` is already parsed, and treated as the `next` element for the left element, `a`. 
+            case SProgram(x) => x.foldRight(n)(
+                (a, b) => parse(a, b)
+            )
 
             // Symbols
             case SSym(x) => x match {
@@ -27,32 +30,30 @@ package ReaderAndParser {
             // Cell
             case SCell(x) => CellExt(cellparse(x), n)
 
-            // List of String expressions - iterated from right to left.
-            // `b` is already parsed, and treated as the `next` element for the left element, `a`. 
-            case SList(x) => x.foldRight(n)(
-                (a, b) => parse(a, b)
-            )
+            
 
 
             // In case of no known expression
-            case _ => throw new ParseException("Unknown symbol found during parsing.")
+            case err => throw new ParseException("Unknown symbol found during parsing: " + err)
         }
 
         def cellparse(i: StringExpr) : ExtExpr = i match {
+            // Empty cell, aka {}
             case SList(x) if x.length == 0 => NilExt()
             case SList(x) => x.head match {
                 case SSym(c) => c match {
-                    case "+" | "-" if x.length == 3 => BinOpExt(c, parse(x(1)), parse(x(2)))
+                    case "+" | "-" | "*" | "/" if x.length == 3 => BinOpExt(c, cellparse(x(1)), cellparse(x(2)))
                     case _ => throw new ParseException("Unknown symbol at the start of list: " + c)
                 }
-                case SNum(n) if x.length == 1 => NumExt(n)
 
+                // Only one item in the list, aka a cell like {2}
+                case a if x.length == 1 => cellparse(a)
                 case _ => throw new ParseException("Unknown symbol in list: " + x.head)
             }
-
             
+            case SNum(x) => NumExt(x)
             
-            case _ => throw new ParseException("Unknown symbol found during cell parsing.")
+            case err => throw new ParseException("Unknown symbol found during cell parsing: " + err.toString())
             
         }
     }
@@ -75,19 +76,23 @@ package ReaderAndParser {
 
         
         // String Expression is either a number, a symbol, a list or a cell
-        def sexpr  : Parser[StringExpr] = (num | symbol | slist | cell)
+        def sexpr  : Parser[StringExpr] = (num | symbol | sprogram | cell)
+
+        def sprogram : Parser[StringExpr] = (cell | symbol).+ ^^ SProgram
 
         // An SList is a combination of cells and symbols
-        def slist  : Parser[StringExpr] = (cell | symbol).+                      ^^ SList
+        def slist  : Parser[StringExpr] = "(" ~> (num | symbol | slist).* <~ ")"         ^^ SList
 
         // A symbol is any set of characters that don't match whitespace or {}
-        def symbol : Parser[StringExpr] = not(wholeNumber) ~> "[^{}\\s]+".r      ^^ SSym
+        def symbol : Parser[StringExpr] = not(wholeNumber) ~> "[^{}()\\s]+".r      ^^ SSym
 
         // A Cell is surrounded by {} and does not contain cells itself.
         def cell   : Parser[StringExpr] = "{" ~> (num | symbol | slist).* <~ "}" ^^ {s => SCell(SList(s)) }
 
         // A number is any whole number.
         def num    : Parser[StringExpr] = wholeNumber                            ^^ {s => SNum(s.toInt)}
+
+        
 
     }
 

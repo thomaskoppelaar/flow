@@ -23,10 +23,17 @@ package object Interpreter {
             case (NumV(x), NumV(y)) => NumV(x + y)
             case _ => throw new InterpException("PlusC err; 2 numbers required")
         }
-
         case MinC(l, r) => (interp(l, p), interp(r, p)) match {
             case (NumV(x), NumV(y)) => NumV(x - y)
             case _ => throw new InterpException("MinC err; 2 numbers required")
+        }
+        case MultC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) => NumV(x * y)
+            case _ => throw new InterpException("MultC err; 2 numbers required")
+        }
+        case DivC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) if y != 0 => NumV(x / y)
+            case _ => throw new InterpException("DivC err; 2 numbers required or division by 0")
         }
 
         
