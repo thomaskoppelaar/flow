@@ -1,4 +1,4 @@
-package ExtEpr
+package ExtExpr
 
 sealed abstract class ExtExpr
 case class CellExt(e: ExtExpr, n: ExtExpr) extends ExtExpr
