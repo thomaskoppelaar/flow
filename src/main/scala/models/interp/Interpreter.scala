@@ -19,6 +19,16 @@ package object Interpreter {
         case NumC(n : Int) => NumV(n)
         case NilC() => p
         case MarkerC(e : CoreExpr) => interp(e, p)
+        case PlusC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) => NumV(x + y)
+            case _ => throw new InterpException("PlusC err; 2 numbers required")
+        }
+
+        case MinC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) => NumV(x - y)
+            case _ => throw new InterpException("MinC err; 2 numbers required")
+        }
+
         
         case _ => throw new InterpException("Unknown Core syntax!")
 
