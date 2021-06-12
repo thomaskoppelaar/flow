@@ -6,3 +6,4 @@ case class NumExt(n : Int) extends ExtExpr
 case class MarkerExt(n: ExtExpr) extends ExtExpr
 case class NilExt() extends ExtExpr
 case class BinOpExt(c: String, l: ExtExpr, r: ExtExpr) extends ExtExpr
+case class StringExt(c: String) extends ExtExpr

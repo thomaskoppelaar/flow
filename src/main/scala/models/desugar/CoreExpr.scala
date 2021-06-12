@@ -8,3 +8,4 @@ case class PlusC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class MinC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class MultC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class DivC(l: CoreExpr, r: CoreExpr) extends CoreExpr
+case class StringC(c: String) extends CoreExpr

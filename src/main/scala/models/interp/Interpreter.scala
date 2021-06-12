@@ -15,13 +15,25 @@ package object Interpreter {
       * @return a Value object.
       */
     def interp(x : CoreExpr, p: Value = NilV()): Value = x match {
-        case CellC(e : CoreExpr, n : CoreExpr) => interp(n, interp(e, p))
+        // Data values
         case NumC(n : Int) => NumV(n)
+        case StringC(c) => StringV(c)
         case NilC() => p
+
+        // Program control
+        // CellC: interp() the current expression with the previous element,
+        // And use that result as the "previous" element for the next CoreExpr.
+        case CellC(e : CoreExpr, n : CoreExpr) => interp(n, interp(e, p))
+
+        // MarkerC: Pass through data
+        // No checks done to see as to what element the data is being passed onto
         case MarkerC(e : CoreExpr) => interp(e, p)
+
+        // Arithmetic operations
         case PlusC(l, r) => (interp(l, p), interp(r, p)) match {
             case (NumV(x), NumV(y)) => NumV(x + y)
-            case _ => throw new InterpException("PlusC err; 2 numbers required")
+            case (StringV(x), StringV(y)) => StringV(x.concat(y))
+            case _ => throw new InterpException("PlusC err; 2 numbers or strings required")
         }
         case MinC(l, r) => (interp(l, p), interp(r, p)) match {
             case (NumV(x), NumV(y)) => NumV(x - y)
@@ -29,7 +41,8 @@ package object Interpreter {
         }
         case MultC(l, r) => (interp(l, p), interp(r, p)) match {
             case (NumV(x), NumV(y)) => NumV(x * y)
-            case _ => throw new InterpException("MultC err; 2 numbers required")
+            case (StringV(x), NumV(y)) => StringV(x.repeat(y))
+            case _ => throw new InterpException("MultC err; 2 numbers or string and number required")
         }
         case DivC(l, r) => (interp(l, p), interp(r, p)) match {
             case (NumV(x), NumV(y)) if y != 0 => NumV(x / y)
