@@ -34,7 +34,9 @@ package ReaderAndParser {
                 case _ => throw new ParseException("Parse: Unknown symbol or symbol not allowed in this location: " + x)
             }
 
-            // Cell
+            // Empty cell
+            case SCell(List()) => CellExt(NilExt(), n)
+
             case SCell(x) => CellExt(cellparse(Left(x)), n)
 
             // In case of no known expression
@@ -43,17 +45,20 @@ package ReaderAndParser {
 
         /**
           * Method for parsing elements in a cell. 
+          * Uses either class to accept both single and multiple string expressions.
           *
           * @param i The element to parse.
           * @return the parsed expression.
           */
         def cellparse(i: Either[List[StringExpr], StringExpr]) : ExtExpr = i match {
-            // Single expression to parse
-            case Left(a :: Nil) => cellparse(Right(a))
             
-            // Empty cell, aka {}
-            case Left(Nil) => NilExt()
+            // SLists with a single element should be treated as a single element
+            case Left(a :: Nil) => cellparse(Right(a))
 
+            // SLists should be treated as lists of expressions
+            case Right(SList(l)) => cellparse(Left(l))
+
+            // Function syntax
             case Left(SSym(c) :: SSym(":") :: rest) => FdExt(c, cellparse(Left(rest)))
 
             case Left(SSym(c) :: rest) => c match {

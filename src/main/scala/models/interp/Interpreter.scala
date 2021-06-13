@@ -8,7 +8,7 @@ class InterpException(m : String) extends Exception(m)
 package object Interpreter {
 
     /**
-      * Interpreter method. Transforms CoreExpressions 
+      * Interpreter method. Transforms CoreExpressions into Values
       *
       * @param x The expression to parse.
       * @param p The value gained from the previous expression.
@@ -36,6 +36,7 @@ package object Interpreter {
         // No checks done to see as to what element the data is being passed onto
         case MarkerC(e : CoreExpr) => interp(e, p)
 
+        // Todo: Functions are always applied, which makes it impossible to send along a function as a return type
         case FuncC(c, b) => interp(subst(c, p, b), p)
 
         // Arithmetic operations

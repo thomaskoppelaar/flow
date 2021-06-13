@@ -4,11 +4,24 @@ import ExtExpr._
 import CoreExpr._
 import Value._
 
+
+// Starting point of the Application. 
 object Main extends App {
 
 
     // String that contains the program
-    val program: String = """{2}=>{a: * 2 a} => {a : - a 1} => {a : + a 3} => {b : / b 2}"""
+    val program: String = """
+        {2} => 
+        {
+            a: * 2 a
+        } => {
+            a : - a 1
+        } => {
+            a : + a 3
+        } => {
+            b : / b 2
+        }
+    """
     println("Input Program: " + program)
 
     // Read input code, transform into string expressions
