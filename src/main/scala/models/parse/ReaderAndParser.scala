@@ -35,7 +35,7 @@ package ReaderAndParser {
             }
 
             // Cell
-            case SCell(x) => CellExt(cellparse(x), n)
+            case SCell(x) => CellExt(cellparse(Left(x)), n)
 
             // In case of no known expression
             case err => throw new ParseException("Parse: Unknown symbol found during parsing: " + err)
@@ -47,33 +47,37 @@ package ReaderAndParser {
           * @param i The element to parse.
           * @return the parsed expression.
           */
-        def cellparse(i: StringExpr) : ExtExpr = i match {
+        def cellparse(i: Either[List[StringExpr], StringExpr]) : ExtExpr = i match {
+            // Single expression to parse
+            case Left(a :: Nil) => cellparse(Right(a))
+            
             // Empty cell, aka {}
-            case SList(x) if x.length == 0 => NilExt()
+            case Left(Nil) => NilExt()
 
-            case SNum(x) => NumExt(x)
+            case Left(SSym(c) :: SSym(":") :: rest) => FdExt(c, cellparse(Left(rest)))
+
+            case Left(SSym(c) :: rest) => c match {
+                    case "+" | "-" | "*" | "/" if rest.length == 2 => BinOpExt(c, cellparse(Right(rest(0))), cellparse(Right(rest(1))))
+                    
+                    case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c)
+            }
+
+            // Number
+            case Right(SNum(x)) => NumExt(x)
 
 
-            case SSym(x) => x match {
+            case Right(SSym(x)) => x match {
                 case "nil" => NilExt()
 
                 // String syntax
                 case a if a.startsWith("\"") && a.endsWith("\"") => StringExt(a.substring(1, a.length()-1))
-                case _ => throw new ParseException("CellParse: Unknown symbol or symbol not allowed in this location: " + x)
+                
+                // todo: reserved words list
+                case _ => IdExt(x)
+                // case _ => throw new ParseException("CellParse: Unknown symbol or symbol not allowed in this location: " + x)
             }
 
-            case SList(x) => x.head match {
-
-                // SCell always contains an SList, as
-                case a if x.length == 1 => cellparse(a)
-
-                case SSym(c) => c match {
-                    case "+" | "-" | "*" | "/" if x.length == 3 => BinOpExt(c, cellparse(x(1)), cellparse(x(2)))
-                    case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c)
-                }
-
-                case _ => throw new ParseException("CellParse: Unknown symbol in list: " + x.head)
-            }
+           
             
             case err => throw new ParseException("CellParse: Unknown symbol found during cell parsing: " + err.toString())
             
@@ -106,10 +110,10 @@ package ReaderAndParser {
         def slist  : Parser[StringExpr] = "(" ~> (num | symbol | slist).* <~ ")" ^^ SList
 
         // A symbol is any set of characters that don't match whitespace or {}
-        def symbol : Parser[StringExpr] = not(wholeNumber) ~> "[^{}()\\s]+".r    ^^ SSym
+        def symbol : Parser[StringExpr] = not(wholeNumber) ~> ":|[^:{}()\\s]+".r    ^^ SSym
 
         // A Cell is surrounded by {} and does not contain cells itself.
-        def cell   : Parser[StringExpr] = "{" ~> (num | symbol | slist).* <~ "}" ^^ {s => SCell(SList(s)) }
+        def cell   : Parser[StringExpr] = "{" ~> (num | symbol | slist).* <~ "}" ^^ {s => SCell(s) }
 
         // A number is any whole number.
         def num    : Parser[StringExpr] = wholeNumber                            ^^ {s => SNum(s.toInt)}

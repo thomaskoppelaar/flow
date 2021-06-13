@@ -8,7 +8,7 @@ object Main extends App {
 
 
     // String that contains the program
-    val program: String = """{* "a" 5}"""
+    val program: String = """{2}=>{a: * 2 a} => {a : - a 1} => {a : + a 3} => {b : / b 2}"""
     println("Input Program: " + program)
 
     // Read input code, transform into string expressions

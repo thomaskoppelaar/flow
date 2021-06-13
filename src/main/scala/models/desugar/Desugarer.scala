@@ -13,6 +13,7 @@ package object Desugarer {
         case NilExt() => NilC()
         case StringExt(c) => StringC(c)
         case NumExt(n : Int) => NumC(n)
+        case IdExt(c) => IdC(c)
 
         // Program control
         case CellExt(e: ExtExpr, n: ExtExpr) => CellC(desugar(e), desugar(n))
@@ -27,8 +28,9 @@ package object Desugarer {
             case _ => throw new DesugarException("Unknown symbol for binary operator:" + c)
         }
         
+        case FdExt(c, b) => FuncC(c, desugar(b))
         
-        case _ => throw new DesugarException("Unknown abstract syntax!")
+        case err => throw new DesugarException("Unknown abstract syntax: " + err.toString())
     }
 
 }
