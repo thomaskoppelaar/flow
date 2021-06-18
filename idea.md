@@ -71,10 +71,12 @@ Example program:
 scoping:
 
 for now:
-- a single cell type
-- 1 input unit thing
+- a single cell type `{}`
+- 1 input unit thing `{a: ...}` => a is the input variable
+  - reference to input is handled via subst() calls
 - 1 output thing
-- only working with numbers
+  - =>
+- only working with ~~numbers~~ primitive data types, which boils down to no lists
 
 
 
@@ -114,3 +116,8 @@ does look pretty cool.
    \-> ()
 ```
 
+booleans
+- could just be desugared into numbers 0 and 1
+  - pro: saves dealing with new primitive datatype
+  - con: means that `+ true true` could be done, which might not be intentional
+  - remark: it'd also mean that `{a: + true true} => {a: = true a}` would evaluate to false (if false = 0, true = 1)
