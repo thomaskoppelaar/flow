@@ -14,6 +14,7 @@ package object Desugarer {
         case StringExt(c) => StringC(c)
         case NumExt(n : Int) => NumC(n)
         case IdExt(c) => IdC(c)
+        case BoolExt(e) => BoolC(e)
 
         // Program control
         case CellExt(e: ExtExpr, n: ExtExpr) => CellC(desugar(e), desugar(n))
@@ -25,8 +26,25 @@ package object Desugarer {
             case "-" => MinC(desugar(l), desugar(r))
             case "*" => MultC(desugar(l), desugar(r))
             case "/" => DivC(desugar(l), desugar(r))
+
+            case "=" => EqC(desugar(l), desugar(r))
+            case "<" => LtC(desugar(l), desugar(r))
+            case ">" => IfC(EqC(desugar(l), desugar(r)), BoolC(false), IfC(LtC(desugar(l), desugar(r)), BoolC(false), BoolC(true)))
+            case "<=" => IfC(EqC(desugar(l), desugar(r)), BoolC(true), IfC(LtC(desugar(l), desugar(r)), BoolC(true), BoolC(false)))
+            case ">=" => IfC(EqC(desugar(l), desugar(r)), BoolC(true), IfC(LtC(desugar(l), desugar(r)), BoolC(false), BoolC(true)))
+
+            case "and" => IfC(desugar(l), IfC(desugar(r), BoolC(true), BoolC(false)), BoolC(false))
+            // For now, both sides of the equation should be evaluated in order to catch 'errors' like `or true "c"`
+            case "or" => IfC(desugar(l), IfC(desugar(r), BoolC(true), BoolC(true)), IfC(desugar(r), BoolC(true), BoolC(false)))
+            
             case _ => throw new DesugarException("Unknown symbol for binary operator:" + c)
         }
+
+        case UnOpExt(c, e) => c match {
+            case "not" => IfC(desugar(e), BoolC(false), BoolC(true))
+        }
+
+        case IfExt(c, t, f) => IfC(desugar(c), desugar(t), desugar(f))
         
         case FdExt(c, b) => FuncC(c, desugar(b))
         

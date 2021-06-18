@@ -20,6 +20,7 @@ package object Interpreter {
         case StringC(c) => StringV(c)
         case NilC() => NilV()
         case ValC(v) => v
+        case BoolC(e) => BoolV(e)
 
         case IdC(c) => throw new InterpException("Tried to interpret ID but no matching value exists: " + c)
         // Program control
@@ -59,17 +60,36 @@ package object Interpreter {
             case _ => throw new InterpException("DivC err; 2 numbers required or division by 0")
         }
 
+        // Conditional operators
+        case IfC(c, t, f) => interp(c, p) match {
+            case BoolV(false) => interp(f, p)
+            case BoolV(true) => interp(t, p)
+
+            case _ => throw new InterpException("Conditional error; condition was not of type boolean or number")
+        }
+        case EqC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) => BoolV(x == y)
+            case _ => throw new InterpException("EqC err; 2 numbers required")
+        }
+        case LtC(l, r) => (interp(l, p), interp(r, p)) match {
+            case (NumV(x), NumV(y)) => BoolV(x < y)
+            case _ => throw new InterpException("LtC err; 2 numbers required")
+        }
+
         
         case _ => throw new InterpException("Unknown Core syntax!")
 
     }
 
-    def subst(f : String, t: Value, e : CoreExpr) : CoreExpr = e match {
-        case IdC(c) if f == c => ValC(t)
-        case PlusC(l, r) => PlusC(subst(f, t, l), subst(f, t, r))
-        case MinC(l, r) => MinC(subst(f, t, l), subst(f, t, r))
-        case MultC(l, r) => MultC(subst(f, t, l), subst(f, t, r))
-        case DivC(l, r) => DivC(subst(f, t, l), subst(f, t, r))
+    def subst(from : String, to: Value, e : CoreExpr) : CoreExpr = e match {
+        case IdC(c) if from == c => ValC(to)
+        case PlusC(l, r) => PlusC(subst(from, to, l), subst(from, to, r))
+        case MinC(l, r) => MinC(subst(from, to, l), subst(from, to, r))
+        case MultC(l, r) => MultC(subst(from, to, l), subst(from, to, r))
+        case DivC(l, r) => DivC(subst(from, to, l), subst(from, to, r))
+        case EqC(l, r) => EqC(subst(from, to, l), subst(from, to, r))
+        case LtC(l, r) => LtC(subst(from, to, l), subst(from, to, r))
+        case IfC(c, t, f) => IfC(subst(from, to, c), subst(from, to, t), subst(from, to, f))
 
         case _ => e
 

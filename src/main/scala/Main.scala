@@ -15,11 +15,11 @@ object Main extends App {
         {
             a: * 2 a
         } => {
-            a : - a 1
+            a : if (>= a 3) 5 -1
         } => {
-            a : + a 3
+            a : and (= a 5) true
         } => {
-            b : / b 2
+            b : if (or b false) 42 -1
         }
     """
     println("Input Program: " + program)

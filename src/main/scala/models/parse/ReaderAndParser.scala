@@ -10,7 +10,9 @@ package ReaderAndParser {
     // Parser. Takes in string expressions and turns them into abstract syntax objects.
     package object Parser {
 
-        
+        val binOps = Set("+", "-", "*", "/", "=", "<", ">", ">=", "<=", "and", "or")
+        val unOps = Set("not")
+
         /**
           * Parse method used for program flow, cells, and flow markers.
           * Separated from parsing cell contents to avoid hassle with lists.
@@ -62,9 +64,11 @@ package ReaderAndParser {
             case Left(SSym(c) :: SSym(":") :: rest) => FdExt(c, cellparse(Left(rest)))
 
             case Left(SSym(c) :: rest) => c match {
-                    case "+" | "-" | "*" | "/" if rest.length == 2 => BinOpExt(c, cellparse(Right(rest(0))), cellparse(Right(rest(1))))
-                    
-                    case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c)
+                case "if" if rest.length == 3 => IfExt(cellparse(Right(rest(0))), cellparse(Right(rest(1))), cellparse(Right(rest(2))))
+
+                case _ if binOps.contains(c) && rest.length == 2 => BinOpExt(c, cellparse(Right(rest(0))), cellparse(Right(rest(1))))
+                case _ if unOps.contains(c) && rest.length == 1 => UnOpExt(c, cellparse(Right(rest(0))))
+                case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c)
             }
 
             // Number
@@ -73,6 +77,9 @@ package ReaderAndParser {
 
             case Right(SSym(x)) => x match {
                 case "nil" => NilExt()
+
+                case "true" => BoolExt(true)
+                case "false" => BoolExt(false)
 
                 // String syntax
                 case a if a.startsWith("\"") && a.endsWith("\"") => StringExt(a.substring(1, a.length()-1))
