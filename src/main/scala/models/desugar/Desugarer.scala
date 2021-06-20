@@ -17,7 +17,10 @@ package object Desugarer {
         case BoolExt(e) => BoolC(e)
 
         // Program control
-        case CellExt(e, n) => CellC(desugar(e), desugar(n))
+        case CellExt(e, n) => CellC(desugar(e) match {
+            case f@FuncC(id, b) => AppC(f, null)
+            case body => AppC(FuncC("_", body), null)
+        }, desugar(n))
         case MarkerExt(n) => MarkerC(desugar(n))
 
         // Binary Operators
@@ -46,7 +49,8 @@ package object Desugarer {
 
         case IfExt(c, t, f) => IfC(desugar(c), desugar(t), desugar(f))
         
-        case FdExt(c, b) => FuncC(c, desugar(b))
+        case FdExt(id, b) => FuncC(id, desugar(b))
+        case AppExt(f, p) => AppC(desugar(f), desugar(p))
 
         case IoExt(null) => IoC(null)
         case IoExt(c) => IoC(desugar(c))

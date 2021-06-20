@@ -63,13 +63,20 @@ package ReaderAndParser {
             // Function syntax
             case Left(SSym(c) :: SSym(":") :: rest) => FdExt(c, cellparse(Left(rest)))
 
+           
+
             case Left(SSym(c) :: rest) => c match {
                 case "if" if rest.length == 3 => IfExt(cellparse(Right(rest(0))), cellparse(Right(rest(1))), cellparse(Right(rest(2))))
 
                 case _ if binOps.contains(c) && rest.length == 2 => BinOpExt(c, cellparse(Right(rest(0))), cellparse(Right(rest(1))))
                 case _ if unOps.contains(c) && rest.length == 1 => UnOpExt(c, cellparse(Right(rest(0))))
-                case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c)
+
+                case _ => AppExt(IdExt(c), cellparse(Left(rest)))
+                // case _ => throw new ParseException("CellParse: Unknown symbol at the start of cell list: " + c + rest.toString())
             }
+
+            // Function application
+            case Left(f :: p :: Nil) => AppExt(cellparse(Right(f)), cellparse(Right(p)))
 
             // Number
             case Right(SNum(x)) => NumExt(x)

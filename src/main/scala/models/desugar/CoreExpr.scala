@@ -17,5 +17,6 @@ case class EqC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class LtC(l: CoreExpr, r: CoreExpr) extends CoreExpr
 case class StringC(c: String) extends CoreExpr
 case class FuncC(c: String, b: CoreExpr) extends CoreExpr
+case class AppC(f: CoreExpr, p: CoreExpr) extends CoreExpr
 case class ValC(v : Value) extends CoreExpr
 case class IoC(c: CoreExpr) extends CoreExpr

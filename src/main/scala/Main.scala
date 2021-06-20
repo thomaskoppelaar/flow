@@ -11,7 +11,7 @@ object Main extends App {
 
     // String that contains the program
     val program: String = """
-        {3} => {} => {a:+ 1 a} => {}
+    {3} => {* _ _}
     """
     println("Input Program: " + program)
 
@@ -26,6 +26,6 @@ object Main extends App {
     // println("Desugared: " + desugared_program.toString())
 
     val interped_program: Value = Interpreter.interp(desugared_program)
-    // println("Interpreted: " + interped_program.toString())
+    println("Interpreted: " + interped_program.toString())
 
 }
