@@ -36,8 +36,8 @@ package ReaderAndParser {
                 case _ => throw new ParseException("Parse: Unknown symbol or symbol not allowed in this location: " + x)
             }
 
-            // Empty cell
-            case SCell(List()) => CellExt(NilExt(), n)
+            // Empty cell - treat as I/O operation
+            case SCell(List()) => CellExt(IoExt(null), n)
 
             case SCell(x) => CellExt(cellparse(Left(x)), n)
 
@@ -52,7 +52,7 @@ package ReaderAndParser {
           * @param i The element to parse.
           * @return the parsed expression.
           */
-        def cellparse(i: Either[List[StringExpr], StringExpr]) : ExtExpr = i match {
+        def cellparse(i: Either[List[StringExpr], StringExpr]): ExtExpr = i match {
             
             // SLists with a single element should be treated as a single element
             case Left(a :: Nil) => cellparse(Right(a))
@@ -73,8 +73,7 @@ package ReaderAndParser {
 
             // Number
             case Right(SNum(x)) => NumExt(x)
-
-
+            
             case Right(SSym(x)) => x match {
                 case "nil" => NilExt()
 

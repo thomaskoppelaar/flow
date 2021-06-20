@@ -7,18 +7,18 @@ class DesugarException(m : String) extends Exception(m)
 
 package object Desugarer {
 
-    def desugar(x : ExtExpr)  : CoreExpr = x match {
-
+    def desugar(x: ExtExpr): CoreExpr = x match {
+        
         // Data types
         case NilExt() => NilC()
         case StringExt(c) => StringC(c)
-        case NumExt(n : Int) => NumC(n)
+        case NumExt(n) => NumC(n)
         case IdExt(c) => IdC(c)
         case BoolExt(e) => BoolC(e)
 
         // Program control
-        case CellExt(e: ExtExpr, n: ExtExpr) => CellC(desugar(e), desugar(n))
-        case MarkerExt(n: ExtExpr) => MarkerC(desugar(n))
+        case CellExt(e, n) => CellC(desugar(e), desugar(n))
+        case MarkerExt(n) => MarkerC(desugar(n))
 
         // Binary Operators
         case BinOpExt(c, l, r) => c match {
@@ -47,6 +47,9 @@ package object Desugarer {
         case IfExt(c, t, f) => IfC(desugar(c), desugar(t), desugar(f))
         
         case FdExt(c, b) => FuncC(c, desugar(b))
+
+        case IoExt(null) => IoC(null)
+        case IoExt(c) => IoC(desugar(c))
         
         case err => throw new DesugarException("Unknown abstract syntax: " + err.toString())
     }

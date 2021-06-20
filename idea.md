@@ -121,3 +121,19 @@ booleans
   - pro: saves dealing with new primitive datatype
   - con: means that `+ true true` could be done, which might not be intentional
   - remark: it'd also mean that `{a: + true true} => {a: = true a}` would evaluate to false (if false = 0, true = 1)
+
+empty cell: {}
+- Should be parsed differently than `{nil}`
+- Can have a label: {~input}
+- If no flow marker is present beforehand, prompt for input
+- Otherwise, print to console
+- {} should parse into CellExt(PrintExt())
+
+idea: `{!}` for throwing errors / error logging
+
+idea: `_` as symbol that can be used for the cell input: `{a: + 2 a}` can turn into `{+ 2 _}`
+
+
+desugar every cell into function application
+- {2} => AppFunc(Func("_", Num(2)), Nil)
+- apply null to "_", the reserved variable, and return the function body, 2

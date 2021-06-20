@@ -12,3 +12,4 @@ case class UnOpExt(c: String, e: ExtExpr) extends ExtExpr
 case class FdExt(c: String, b: ExtExpr) extends ExtExpr
 case class IdExt(c: String) extends ExtExpr
 case class IfExt(c: ExtExpr, t: ExtExpr, f: ExtExpr) extends ExtExpr
+case class IoExt(c: ExtExpr) extends ExtExpr
